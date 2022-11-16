@@ -124,7 +124,7 @@ int main(){
         IPnumber = getIPAccess(getIP(line));
         //Time complexity: O(n log n)
         string s = IPnumber;
-        //a function to convert the string "1.2.3.4" to a char array
+        //a function to convert the string to a char array so we can use the function strtok
         char* char_arr;
         string str_obj(s);
         char_arr = &str_obj[0];
@@ -153,7 +153,7 @@ int main(){
             }
         }
     }
-    g.printGraph(); //Quitar si quieres dejar de ver el grafo en consola
+    // g.printGraph(); //Quitar si quieres dejar de ver el grafo en consola
     OurReadFile.close();
     return 0;
 }
