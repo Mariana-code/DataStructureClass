@@ -1,10 +1,20 @@
-/// Act 3.4 - Comprehensive BST activity (competence evidence)
+/// Act 4.3 - Comprehensive Graph Activity (Competence evidence)
 /// Author: Juan Jose Salazar Cortes
 /// Author: Mariana Esquivel Hernandez
-/// date: 11/02/2022
+/// date: 11/15/2022
+
+// Abra el archivo de entrada llamado "bitacora.txt Download bitacora.txt Vista previa del documento" 
+// lealo y almacene los datos en en una lista de adyacencia organizada por dirección de ip origen 
+// (Formato del archivo bitacora.pdf Download Formato del archivo bitacora.pdfVista previa del documento). 
+// Por ejemplo la lista 192.168.1.3 => {192: 168, 168:1, 1:3}
+
+// Determine el degree y el outdegree de cada nodo
+// ¿Qué nodos tienen el mayor degree y cuales el mayor outdegree?
+
 
 //#include <bits/stdc++.h>
 
+// No se cuales librerias si borrar. Por el momento NO BORRAR NINGUNA
 #include <iostream>
 #include <string>
 #include <vector>
@@ -14,101 +24,78 @@
 #include <queue>
 #include <map>
 #include <array>
+#include <list>
+#include <stdio.h>
+#include <string.h>
+#include <cstring>
 
 using namespace std;
 
-struct Node{
-    string IP;
-    int rep;
-    Node(string value): IP(value), rep(1){};
-};
+class Graph
+{
+private:
+    int numVertices;
+    vector<int> *adjList;
+    bool *visited;
+    int **matrixDegreeList;
+    // int **adjMatrix;
 
-class maxHeap{
-    private:
-        int size = 0;
-        vector<Node> heapTree = {};    
-        int parent(int index) {
-            return (index - 1) >> 1;
-            }; 
-        int left(int index) {
-            return (index << 1) + 1;
-            };  
-        int right(int index) {
-            return (index << 1) + 2;
-            };  
-    public:
-        bool isEmpty() const {
-            return size == 0;
-            };
-        void insertion(string value); 
-        void top(int index);
-        void shiftUp(int index); 
-        void shiftDown(int index);
-};
-
-//Check if IP already exists and add to the repetitions and shift Up to move the IP further up the heap
-//If it's a new value on the heap, insert it at the end and sift up to move it further up the heap
-//If the heap is empty, insert the first element
-
-void maxHeap::insertion(string value){
-    if(size == 0){
-        heapTree.push_back(Node(value));
-        size+=1;
-        return;
+public:
+    Graph(int V)
+    {
+        numVertices = V;
+        adjList = new vector<int>[numVertices];
+        visited = new bool[V];
+        matrixDegreeList = new int*[numVertices];
+        for(int i = 0; i < numVertices; i++){
+            matrixDegreeList[i] = new int[2];
+            matrixDegreeList[i][0] = 0;
+            matrixDegreeList[i][1] = 0;
+        }
     }
-    for(int i = 0; i < size; i++){
-        if(heapTree[i].IP == value){
-            heapTree[i].rep++;
-            shiftUp(i);
+
+    ~Graph()
+    {
+        delete[] adjList;
+        delete[] visited;
+        delete[] matrixDegreeList;
+    }
+    void loadGraph(int a, int b);
+    void resetVisited();
+    void printGraph();
+    void printDegreeNodes();
+    void maxAndMinDegree();
+};
+
+void Graph::loadGraph(int a, int b){
+    for(int i = 0; i < adjList[a].size(); i++){
+        if(adjList[a][i] == b){
             return;
         }
     }
-    heapTree.push_back(Node(value));
-    size+=1;
-    shiftUp(size-1);
-    return;
-}//Time complexity: O(n)
+    adjList[a].push_back(b);
+    matrixDegreeList[a][0]++;
+    matrixDegreeList[b][1]++;
+} // Complexity O(1)
 
-void maxHeap::top(int index){
-    string maxIP = heapTree[0].IP;    
-    int maxReps = heapTree[0].rep;
-    cout << "IP-."<< index+1 << " "<< maxIP + " is being repeated: " << to_string(maxReps) << " times "<< endl;
-    swap(heapTree[0], heapTree[size-1]);
-    shiftDown(0);
-    size -= 1;
-}//Time complexity: O(log n)
+void Graph::resetVisited()
+{
+    for (int i = 0; i < this->numVertices; i++)
+        this->visited[i] = false;
+} // Complexity O(V)
 
-void maxHeap::shiftUp(int index){
-    if(index == 0) return; 
-    int parentIndex = parent(index);
-    if(heapTree[parentIndex].rep < heapTree[index].rep){
-        swap(heapTree[parentIndex], heapTree[index]);
-    } 
-    else if( heapTree[parentIndex].rep == heapTree[index].rep && heapTree[parentIndex].IP != heapTree[index].IP){ 
-        swap(heapTree[parentIndex], heapTree[index]);
+void Graph::printGraph()
+{
+    for (int i = 1; i < this->numVertices; i++)
+    {
+        cout << "\nVertex " << i << ":";
+        for (auto x : this->adjList[i])
+            cout << " -> " << x;
+        cout << endl;
     }
-    shiftUp(parentIndex);
-}//Time complexity: O(log n)
+} // Time Complexity O(n)
 
-void maxHeap::shiftDown(int index){
-    if(size <= index){
-        return; 
-    }
-    int aux = index;
-    if((left(index) < size) && (heapTree[index].rep < heapTree[left(index)].rep)){
-        aux = left(index);
-    }
-    if((right(index) < size) && (heapTree[aux].rep < heapTree[right(index)].rep)){
-        aux = right(index);      
-    }
-    if(aux != index){
-        swap(heapTree[index], heapTree[aux]);
-        shiftDown(aux);
-    }   
-    return;
-}//Time Complexity O(log n)
-
-// Take the IP from the line
+// Take the IP from the line 
 string getIP(string record){
     long long contEsp = 0;
     long long indexBeg;
@@ -136,24 +123,83 @@ string getIPAccess(string IP){
     return access;
 } // Time Complexity O(n)
 
+void Graph::maxAndMinDegree(){
+    int maxInDegree = 0, maxOutDegree = 0, cont1 = 0, cont2 = 0;
+    for(int i = 0; i < numVertices; i++){
+        if(matrixDegreeList[i][0] > maxInDegree){
+            maxInDegree = matrixDegreeList[i][0];
+            cont1 = i;
+        }
+        if(matrixDegreeList[i][1] > maxOutDegree){
+            maxOutDegree = matrixDegreeList[i][1];
+            cont2 = i;
+        }
+    }
+    cout << "The Node With More OutDegree is: " << cont1 << " with: " << maxInDegree << endl;
+    cout << "The Node With More InDegree is: " << cont2 << " with "<< maxOutDegree << endl<<endl;
+}; //Time Complexity: O(n) 
+
+void Graph::printDegreeNodes(){
+    cout << "------------------------------------------" << endl;
+    cout << "Node\t\tOutDegree\tInDegree" << " | " << endl;
+    cout << "------------------------------------------" << endl;
+    for(int i = 0; i < numVertices; i++){
+        cout << i << "\t\t"<< matrixDegreeList[i][0] << "\t\t" << matrixDegreeList[i][1] << "\t | " << endl;
+    }
+    cout << "------------------------------------------" << endl;
+} // Time Complexity: O(n) 
+
 int main(){
     fflush(stdin);
+    Graph g(999);
     vector<string> info;
     vector<string> IP;
     string record;
-    maxHeap* priorityQueue = new maxHeap();
     ifstream OurReadFile("bitacora.txt");
     vector<string> lines;
     string line;
+    string IPnumber;
+    int val = 0;
 
+    // Do not be afraid of what is happening here
+    // You are safe now my child
     while(getline(OurReadFile,line)){
-        priorityQueue->insertion(getIPAccess(getIP(line)));
-    }//Time complexity: O(n log n)
+        IPnumber = getIPAccess(getIP(line));
+        //Time complexity: O(n log n)
+        string s = IPnumber;
+        //a function to convert the string "1.2.3.4" to a char array
+        char* char_arr;
+        string str_obj(s);
+        char_arr = &str_obj[0];
+        //create a vector of char* to hold the tokens
+        vector<char*> v;
+        char * pch;
+        pch = strtok (char_arr,".");
+        while (pch != NULL)
+        {
+        v.push_back(pch);
+        pch = strtok (NULL, " ,.-");
+        }
+        for(int i=0; i<v.size(); i++)
+        {
+            int val = i;
+            int value1 = atoi(v[val]);
+            int value2 = 0;
+            if(val + 1 < v.size())
+            {
+                int value2 = atoi(v[val+1]);
+                g.loadGraph(value1, value2);
+            }
+            else
+            {
+                g.loadGraph(value2, 0);  
+            }
+        }
+    }
     OurReadFile.close();
-    cout << "----------------------------Number of accesses for IP address-----------------------------" << endl;
-    for(int i = 0; i < 5; i++){
-        priorityQueue->top(i);
-    }//Complexity O(nlogn)
-
+    cout << "\n------ List With In and Out Degrees ------\n" << endl;
+    g.printDegreeNodes();
+    cout << "\n--- Nodes With More In And Out Degrees ---\n" << endl;
+    g.maxAndMinDegree();
     return 0;
 }
