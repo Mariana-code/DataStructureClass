@@ -19,6 +19,7 @@ using namespace std;
 
 struct Node{
     string IP;
+    vector<long long> ports;
     int rep;
     Node(string value): IP(value), rep(1){};
 };
@@ -72,6 +73,9 @@ void maxHeap::insertion(string value){
 void maxHeap::top(int index){
     string maxIP = heapTree[0].IP;    
     int maxReps = heapTree[0].rep;
+    // for (int i = 0; i < maxReps; i++){
+    //     cout << "Port-."<< index+1 << " "<< heapTree[0].ports[i] << endl;
+    // }
     cout << "IP-."<< index+1 << " "<< maxIP + " is being repeated: " << to_string(maxReps) << " times "<< endl;
     swap(heapTree[0], heapTree[size-1]);
     shiftDown(0);
@@ -185,8 +189,6 @@ long long sequentialSearch(vector<string> &info, string IP){
     cout << IP << endl;
     for(long long i = 0; i < info.size(); i++){
         if(getNumberIP(configStr(getIP(info[i]))) == getNumberIP(configStr(IP))){
-            cout << getNumberIP(configStr(getIP(info[i]))) << endl;
-            cout << getNumberIP(configStr(IP)) << endl;
             return i;
         }
     }
@@ -215,8 +217,7 @@ int main(){
     ifstream OurReadFile("bitacora.txt");
     vector<string> lines;
     vector<string> access;
-    vector<long long> ports;
-
+    
     string line;
     long long portN;
 
@@ -230,18 +231,14 @@ int main(){
         priorityQueue->insertion(getIPAccess(getIP(line)));
     }//Time complexity: O(n log n)
     // OurReadFile.close();
-    cout << "----------------------------Number of accesses for IP address-----------------------------" << endl;
-    for(int i = 0; i < 5; i++){
-        priorityQueue->top(i);
-    }//Complexity O(nlogn)
 
     while (true){
         cout<< "\nPresiona ENTER si quieres salir del programa" << endl;
         cout << "\n----------------------------IP info-----------------------------" << endl;
         cout << "Ingresa la IP que buscas en el Siguiente Formato: " << endl;
-        cout << "Example: xxx.xx.xxx.xx" << endl;
+        cout << "Example: xxx.xx.xxx.xx: ";
         getline(cin, wantedIP);
-        cout << "wantedIP: " << wantedIP << endl;
+        cout << "\nwantedIP: " << wantedIP << endl;
 
         int indexIP = sequentialSearch(info, wantedIP);
         if (indexIP == -1){
@@ -250,11 +247,15 @@ int main(){
         }
         portN = getIPPort(getIP(info[indexIP]));
         cout << "IP: " << info[indexIP] << endl;
-        ports.push_back(portN);
-        for (auto x : ports){
-            cout << "IP Port: " << x << endl;
-        }
+        cout << "Port: " << portN << endl;
+        // for (auto x : )
+        cout << "----------------------------Number of accesses for IP address-----------------------------" << endl;
+        for(int i = 0; i < 5; i++){
+            priorityQueue->top(i);
+        }//Complexity O(nlogn)
     }
+
+    
     
     return 0;
 }
