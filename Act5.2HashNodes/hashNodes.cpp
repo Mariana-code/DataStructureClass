@@ -1,4 +1,4 @@
-/// Act 3.4 - Comprehensive BST activity (competence evidence)
+/// Act 5.2 - Comprehensive activity on the use of hash codes (Competence evidence)
 /// Author: Juan Jose Salazar Cortes
 /// Author: Mariana Esquivel Hernandez
 /// date: 11/02/2022
@@ -14,7 +14,6 @@
 #include <queue>
 #include <map>
 #include <array>
-
 
 using namespace std;
 
@@ -137,24 +136,125 @@ string getIPAccess(string IP){
     return access;
 } // Time Complexity O(n)
 
+
+// Modify the IP to have the same length
+string configStr(string IP){ // 10.15.175.231:6166 -> 10.15.175.231
+    long long consts = 0;
+    long long constt = 0;
+    long long constf = 0;
+    long long dot = 0;
+    
+    for(long long i = IP.length(); i >= 0; i--){ 
+        if (IP[i] == '.') dot++; 
+        else if (dot == 0) consts++; 
+        else if (dot == 1) constt++; 
+        else if (dot == 2) constf++;
+        if (consts < 2 && dot == 1){
+            IP[i] = '0';
+            consts++;
+        }
+        else if (constt < 3 && dot == 2){
+            IP[i] = '0';
+            constt++;
+            if(constt < 3) IP.insert(i,"0");
+        }
+        else if (constf < 2 && dot == 3){
+            IP[i] = '0';
+            constf++;
+        }
+    }
+    return IP;
+} // Time Complexity O(n)
+
+// Delete "." and ":" from the IP to sort it as an long longeger
+long long getNumberIP(string IP){
+    string newStr;
+    // cout << IP << endl;
+    for(long long i = 0; i < IP.length(); i++){
+        // if(IP[i] != ':' && IP[i] != '.'){
+        if(IP[i] != '.'){
+            newStr += IP[i];
+        } else{
+            continue;
+        }
+    }
+    return stoll(newStr);
+} // Time Complexity O(n)
+
+long long sequentialSearch(vector<string> &info, string IP){
+    cout << IP << endl;
+    for(long long i = 0; i < info.size(); i++){
+        if(getNumberIP(configStr(getIP(info[i]))) == getNumberIP(configStr(IP))){
+            cout << getNumberIP(configStr(getIP(info[i]))) << endl;
+            cout << getNumberIP(configStr(IP)) << endl;
+            return i;
+        }
+    }
+    return -1;
+} // Time Complexity O(n)
+
+// Take the IP port 
+long long getIPPort(string IP){
+    string port;
+    for(int i = IP.length()-4; i <= IP.length(); i++){
+        port += IP[i];
+    }
+    return stoll(port);
+} // Time Complexity O(n)
+
+// Date and time
+
+
 int main(){
     fflush(stdin);
-    vector<string> info;
-    vector<string> IP;
+    vector<string> info; // vector of the IPs
+    //vector<string> IP; // vector of the IPs without the port
     string record;
+    string wantedIP;
     maxHeap* priorityQueue = new maxHeap();
     ifstream OurReadFile("bitacora.txt");
     vector<string> lines;
+    vector<string> access;
+    vector<long long> ports;
+
     string line;
+    long long portN;
+
+    ifstream MyReadFile("bitacora.txt");
+    while(getline(MyReadFile, record)){
+        info.push_back(record);
+    }
+    MyReadFile.close();
 
     while(getline(OurReadFile,line)){
         priorityQueue->insertion(getIPAccess(getIP(line)));
     }//Time complexity: O(n log n)
-    OurReadFile.close();
+    // OurReadFile.close();
     cout << "----------------------------Number of accesses for IP address-----------------------------" << endl;
     for(int i = 0; i < 5; i++){
         priorityQueue->top(i);
     }//Complexity O(nlogn)
 
+    while (true){
+        cout<< "\nPresiona ENTER si quieres salir del programa" << endl;
+        cout << "\n----------------------------IP info-----------------------------" << endl;
+        cout << "Ingresa la IP que buscas en el Siguiente Formato: " << endl;
+        cout << "Example: xxx.xx.xxx.xx" << endl;
+        getline(cin, wantedIP);
+        cout << "wantedIP: " << wantedIP << endl;
+
+        int indexIP = sequentialSearch(info, wantedIP);
+        if (indexIP == -1){
+            cout << "IP not found" << endl;
+            continue;
+        }
+        portN = getIPPort(getIP(info[indexIP]));
+        cout << "IP: " << info[indexIP] << endl;
+        ports.push_back(portN);
+        for (auto x : ports){
+            cout << "IP Port: " << x << endl;
+        }
+    }
+    
     return 0;
 }
