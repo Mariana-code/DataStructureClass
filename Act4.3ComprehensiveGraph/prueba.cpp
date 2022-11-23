@@ -1,10 +1,20 @@
-/// Act 3.4 - Comprehensive BST activity (competence evidence)
+/// Act 4.3 - Comprehensive Graph Activity (Competence evidence)
 /// Author: Juan Jose Salazar Cortes
 /// Author: Mariana Esquivel Hernandez
-/// date: 11/02/2022
+/// date: 11/15/2022
+
+// Abra el archivo de entrada llamado "bitacora.txt Download bitacora.txt Vista previa del documento" 
+// lealo y almacene los datos en en una lista de adyacencia organizada por dirección de ip origen 
+// (Formato del archivo bitacora.pdf Download Formato del archivo bitacora.pdfVista previa del documento). 
+// Por ejemplo la lista 192.168.1.3 => {192: 168, 168:1, 1:3}
+
+// Determine el degree y el outdegree de cada nodo
+// ¿Qué nodos tienen el mayor degree y cuales el mayor outdegree?
+
 
 //#include <bits/stdc++.h>
 
+// No se cuales librerias si borrar. Por el momento NO BORRAR NINGUNA
 #include <iostream>
 #include <string>
 #include <vector>
@@ -14,101 +24,95 @@
 #include <queue>
 #include <map>
 #include <array>
+#include <list>
+#include <stdio.h>
+#include <string.h>
+#include <cstring>
 
 using namespace std;
 
-struct Node{
-    string IP;
-    int rep;
-    Node(string value): IP(value), rep(1){};
-};
+class Graph
+{
+private:
+    int numNodes;
+    vector<int> *adjList;
+    bool *visited;
+    int **degreeList;
 
-class maxHeap{
-    private:
-        int size = 0;
-        vector<Node> heapTree = {};    
-        int parent(int index) {
-            return (index - 1) >> 1;
-            }; 
-        int left(int index) {
-            return (index << 1) + 1;
-            };  
-        int right(int index) {
-            return (index << 1) + 2;
-            };  
-    public:
-        bool isEmpty() const {
-            return size == 0;
-            };
-        void insertion(string value); 
-        void top(int index);
-        void shiftUp(int index); 
-        void shiftDown(int index);
-};
-
-//Check if IP already exists and add to the repetitions and shift Up to move the IP further up the heap
-//If it's a new value on the heap, insert it at the end and sift up to move it further up the heap
-//If the heap is empty, insert the first element
-
-void maxHeap::insertion(string value){
-    if(size == 0){
-        heapTree.push_back(Node(value));
-        size+=1;
-        return;
+public:
+    Graph(int V)
+    {
+        numNodes = V;
+        adjList = new vector<int>[numNodes];
+        visited = new bool[V];
+        degreeList = new int*[numNodes];
+        for(int i = 0; i < numNodes; i++){
+                degreeList[i] = new int[2];
+                degreeList[i][0] = 0;
+                degreeList[i][1] = 0;
+            }
     }
-    for(int i = 0; i < size; i++){
-        if(heapTree[i].IP == value){
-            heapTree[i].rep++;
-            shiftUp(i);
+
+    ~Graph()
+    {
+        delete[] adjList;
+        delete[] visited;
+    }
+    void loadGraph(int a, int b); // Time Complexity O(1)
+    void printGraph(); // Time Complexity O(V + E)
+    void nodeDegree(); // Time Complexity O(n^2)
+    void InOutDegree(); // Time Complexity O(n^2)
+};
+
+void Graph::loadGraph(int a, int b){
+    for(int i = 0; i < adjList[a].size(); i++){
+        if(adjList[a][i] == b){
             return;
         }
     }
-    heapTree.push_back(Node(value));
-    size+=1;
-    shiftUp(size-1);
-    return;
-}//Time complexity: O(n)
+    adjList[a].push_back(b);
+    degreeList[a][0]++;
+    degreeList[b][1]++;
+} // Time Complexity O(1)
 
-void maxHeap::top(int index){
-    string maxIP = heapTree[0].IP;    
-    int maxReps = heapTree[0].rep;
-    cout << "IP-."<< index+1 << " "<< maxIP + " is being repeated: " << to_string(maxReps) << " times "<< endl;
-    swap(heapTree[0], heapTree[size-1]);
-    shiftDown(0);
-    size -= 1;
-}//Time complexity: O(log n)
+void Graph::printGraph()
+{
+    for (int i = 1; i < this->numNodes; i++)
+    {
+        cout << "\nVertex " << i << ":";
+        for (auto x : this->adjList[i])
+            cout << " -> " << x;
+        cout << endl;
+    }
+}// Time Complexity O(V + E)
 
-void maxHeap::shiftUp(int index){
-    if(index == 0) return; 
-    int parentIndex = parent(index);
-    if(heapTree[parentIndex].rep < heapTree[index].rep){
-        swap(heapTree[parentIndex], heapTree[index]);
-    } 
-    else if( heapTree[parentIndex].rep == heapTree[index].rep && heapTree[parentIndex].IP != heapTree[index].IP){ 
-        swap(heapTree[parentIndex], heapTree[index]);
+void Graph::InOutDegree(){
+    int maxIn = 0;
+    int maxOut = 0; 
+    int indexBeg = 0;
+    int indexEnd = 0;
+    for(int i = 0; i < numNodes; i++){
+        if(degreeList[i][0] > maxIn){
+            maxIn = degreeList[i][0];
+            indexBeg = i;
+        }
+        if(degreeList[i][1] > maxOut){
+            maxOut = degreeList[i][1];
+            indexEnd = i;
+        }
     }
-    shiftUp(parentIndex);
-}//Time complexity: O(log n)
+    cout << "\tMax Outdegree -> : '" << maxIn << "'  from Node: '" << indexBeg << "'" << endl;
+    cout << "\n\tMax Indegree  <- : '" << maxOut << "'  from Node: '" << indexEnd << "'\n" << endl;
+};// Time Complexity O(V); O(n)
 
-void maxHeap::shiftDown(int index){
-    if(size <= index){
-        return; 
-    }
-    int aux = index;
-    if((left(index) < size) && (heapTree[index].rep < heapTree[left(index)].rep)){
-        aux = left(index);
-    }
-    if((right(index) < size) && (heapTree[aux].rep < heapTree[right(index)].rep)){
-        aux = right(index);      
-    }
-    if(aux != index){
-        swap(heapTree[index], heapTree[aux]);
-        shiftDown(aux);
-    }   
-    return;
-}//Time Complexity O(log n)
+void Graph::nodeDegree(){
+    for(int i = 0; i < numNodes; i++){
+        cout << "Element from the IP: '" << i << "'\t Outdegree -> : '" << degreeList[i][0] <<
+         "'\t Indegree <- : '" << degreeList[i][1] << "'"<< endl;
+    }// Time Complexity O(V); O(n)
+}
 
-// Take the IP from the line
+// Take the IP from the line 
 string getIP(string record){
     long long contEsp = 0;
     long long indexBeg;
@@ -136,24 +140,59 @@ string getIPAccess(string IP){
     return access;
 } // Time Complexity O(n)
 
+
 int main(){
     fflush(stdin);
+    Graph g(999);
     vector<string> info;
     vector<string> IP;
     string record;
-    maxHeap* priorityQueue = new maxHeap();
     ifstream OurReadFile("bitacora.txt");
     vector<string> lines;
     string line;
+    string IPnumber;
+    int num = 0;
 
+    // Do not be afraid of what is happening here
+    // You are safe now my child
     while(getline(OurReadFile,line)){
-        priorityQueue->insertion(getIPAccess(getIP(line)));
-    }//Time complexity: O(n log n)
+        IPnumber = getIPAccess(getIP(line));
+        //Time complexity: O(n log n)
+        string s = IPnumber;
+        //a function to convert the string "1.2.3.4" to a char array
+        char* charArray;
+        string str_obj(s);
+        charArray = &str_obj[0];
+        //create a vector of char* to hold the tokens
+        vector<char*> v;
+        char * pch;
+        pch = strtok (charArray,".");
+        while (pch != NULL)
+        {
+        v.push_back(pch);
+        pch = strtok (NULL, " ,.-");
+        }
+        for(int i=0; i<v.size(); i++)
+        {
+            int num = i;
+            int vertex = atoi(v[num]);
+            int value = 0;
+            if(num + 1 < v.size())
+            {
+                int value = atoi(v[num+1]);
+                g.loadGraph(vertex, value);
+            }
+            else
+            {
+                g.loadGraph(value, 0);  
+            }
+        }
+    }
+    //g.printGraph(); //Ver el grafo en consola
     OurReadFile.close();
-    cout << "----------------------------Number of accesses for IP address-----------------------------" << endl;
-    for(int i = 0; i < 5; i++){
-        priorityQueue->top(i);
-    }//Complexity O(nlogn)
-
+    cout << "\n---------------------------------- Degree List --------------------------------\n" << endl;
+    g.nodeDegree();
+    cout << "\n---------------------------------- Max. In & Out Degrees --------------------------------\n" << endl;
+    g.InOutDegree();
     return 0;
-}
+}// Time Complexity O(n^2)
