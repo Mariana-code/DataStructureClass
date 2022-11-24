@@ -142,18 +142,18 @@ void Hashtable::search (string ip){
         while (!table[index].empty() || table[index].front().IP == ip){
             if (table[index].front().IP == ip){
                 cout << "\nIP: " << table[index].front().IP << endl;
-                cout <<"\nNumber of access: "<<table[index].front().numAccess << endl;
-                cout <<"\nDay and Time of the access: " << endl;
-                for(auto it = table[index].front().access.begin(); it != table[index].front().access.end(); it ++){
-                    cout <<"Access " << j << ": \t"<<*it << endl;
-                    j++;
-                }
-                j = 1;
                 cout<<"\nPort from access: "<<endl;
                 for(auto it = table[index].front().ports.begin(); it != table[index].front().ports.end(); it ++){
                     cout <<"Access "<< j << ": "<< "\t*--- " << *it << " ---*" << endl;
                     j++;
                 }
+                j = 1;
+                cout <<"\nNumber of access: "<<table[index].front().numAccess << endl;
+                cout <<"\nDay and Time of the access: " << endl;
+                for(auto it = table[index].front().access.begin(); it != table[index].front().access.end(); it ++){
+                    cout <<"Access " << j << ": \t"<<*it << endl;
+                    j++;
+                }                
                 return;
             }
             index=(index + i * i) % size;
