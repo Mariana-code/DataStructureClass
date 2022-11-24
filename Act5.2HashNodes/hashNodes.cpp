@@ -19,6 +19,43 @@ struct Node{
         this->puertos.push_back(puerto);
     }
 };
+
+string getDayAndMonth(string record){
+    if(record[5] == ' ') return record.substr(0, 14);
+    else return record.substr(0, 15);
+} // Time Complexity O(1)
+
+string getIP(string record){
+    long long contEsp = 0;
+    long long indexBeg;
+    long long indexEnd;
+    bool aux = true;
+    bool aux2 = true;
+    for(long long i = 0; i < record.length(); i++){
+        if(record[i] == ' ') contEsp ++;
+        if(contEsp == 3 && aux) indexBeg = i + 1 , aux = false;
+        if(contEsp == 4 && aux2) indexEnd = i - indexBeg , aux2 = false;
+    }
+    return record.substr(indexBeg, indexEnd); // "112.12.122.12.1111"
+} // Time Complexity O(n)
+
+// Take the IP without the port 
+string getIPAccess(string IP){
+    string access;
+    for(int i = 0; i <= IP.length()-6; i++){
+        access += IP[i];
+    }
+    return access;
+} // Time Complexity O(n)
+
+string getIPPort(string IP){
+    string access;
+    for(int i = 14; i <= IP.length(); i++){
+        access += IP[i];
+    }
+    return access;
+} // Time Complexity O(n)
+
 class Hashtable{
     private:
         int size;
@@ -72,7 +109,7 @@ void Hashtable::cargarDatos(string file){
     archivo.open(file);
     string line;
     while(getline(archivo,line)){
-        Node n(getDayAndMonth(line),getIPAccess(getIP(line)), );
+        Node n(getDayAndMonth(line),getIPAccess(getIP(line)), getIPPort(getIP(line)));
         insert(n);
     }
     archivo.close();
@@ -87,15 +124,15 @@ void Hashtable::search(string ip){
         int i=1;
         while(!table[index].empty()||table[index].front().IP==ip){
             if(table[index].front().IP==ip){
-                cout<<"IP: "<<table[index].front().IP<<endl;
-                cout<<"Numero de accesos: "<<table[index].front().NumAccesos<<endl;
-                cout<<"Accesos: "<<endl;
+                cout << "IP: "<< table[index].front().IP <<endl;
+                cout << "Numero de accesos: " << table[index].front().NumAccesos << endl;
+                cout << "\n\t-- Accesos: --\n" <<endl;
                 for(auto it=table[index].front().accesos.begin();it!=table[index].front().accesos.end();it++){
-                    cout<<*it<<endl;
+                    cout << "\t" << *it << endl;
                 }
-                cout<<"Puertos: "<<endl;
+                cout << "\n\t-- Puertos: --\n" << endl;
                 for(auto it=table[index].front().puertos.begin();it!=table[index].front().puertos.end();it++){
-                    cout<<*it<<endl;
+                    cout << "\t*--- " << *it << " ---*" << endl;
                 }
                 return;
             }
@@ -124,41 +161,12 @@ void Hashtable::print(){
     }
 }
 
-string getDayAndMonth(string record){
-    if(record[5] == ' ') return record.substr(0, 5);
-    else return record.substr(0, 6);
-} // Time Complexity O(1)
-
-string getIP(string record){
-    long long contEsp = 0;
-    long long indexBeg;
-    long long indexEnd;
-    bool aux = true;
-    bool aux2 = true;
-    for(long long i = 0; i < record.length(); i++){
-        if(record[i] == ' ') contEsp ++;
-        if(contEsp == 3 && aux) indexBeg = i + 1 , aux = false;
-        if(contEsp == 4 && aux2) indexEnd = i - indexBeg , aux2 = false;
-    }
-    return record.substr(indexBeg, indexEnd); // "112.12.122.12.1111"
-} // Time Complexity O(n)
-
-// Take the IP without the port 
-string getIPAccess(string IP){
-    string access;
-    for(int i = 0; i <= IP.length()-6; i++){
-        access += IP[i];
-    }
-    return access;
-} // Time Complexity O(n)
-
 int main(){
     Hashtable h;
     h.cargarDatos("bitacora.txt");
-    cout<<"Cargando datos..."<<endl;
     string ip;
-    cout<<"Ingrese la IP a buscar: ";
-    cin>>ip;
+    cout<<"\nIngrese la IP a buscar: ";
+    cin >> ip;
     h.search(ip);
     return 0;
 }
