@@ -14,6 +14,7 @@
 #include <queue>
 #include <map>
 #include <array>
+#include <list>
 
 using namespace std;
 
@@ -140,7 +141,6 @@ string getIPAccess(string IP){
     return access;
 } // Time Complexity O(n)
 
-
 // Modify the IP to have the same length
 string configStr(string IP){ // 10.15.175.231:6166 -> 10.15.175.231
     long long consts = 0;
@@ -205,6 +205,17 @@ long long getIPPort(string IP){
 } // Time Complexity O(n)
 
 // Date and time
+string getDateTime(string IP){
+    string dateTime;
+    long long aux = 0;
+    for(long long i = 0; aux < 3; i++){
+        if (IP[i] == ' '){
+            aux ++;
+        }
+        dateTime += IP[i];
+    }
+    return (dateTime);
+} // Time Complexity O(n)
 
 
 int main(){
@@ -222,8 +233,10 @@ int main(){
     long long portN;
 
     ifstream MyReadFile("bitacora.txt");
+
     while(getline(MyReadFile, record)){
         info.push_back(record);
+        // h.insertItem(record);
     }
     MyReadFile.close();
 
@@ -248,14 +261,12 @@ int main(){
         portN = getIPPort(getIP(info[indexIP]));
         cout << "IP: " << info[indexIP] << endl;
         cout << "Port: " << portN << endl;
-        // for (auto x : )
+        cout << "Date and time: " << getDateTime(info[indexIP]) << endl;
         cout << "----------------------------Number of accesses for IP address-----------------------------" << endl;
         for(int i = 0; i < 5; i++){
             priorityQueue->top(i);
         }//Complexity O(nlogn)
     }
 
-    
-    
     return 0;
 }
